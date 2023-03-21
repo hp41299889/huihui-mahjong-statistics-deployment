@@ -2,7 +2,7 @@ version: '3.9'
 
 networks:
   huihui-mahjong:
-    driver: bridge'
+    driver: bridge
 
 volumes:
   db-data:
@@ -28,8 +28,6 @@ services:
     image: hp4129889/huihui-mahjong:frontend
     container_name: huihui-mahjong-frontend
     restart: always
-    ports:
-      - "3000:3000"
     networks:
       - huihui-mahjong
 
@@ -39,8 +37,6 @@ services:
     image: hp4129889/huihui-mahjong:backend
     container_name: huihui-mahjong-backend
     restart: always
-    ports:
-      - "8080:8080"
     networks:
       - huihui-mahjong
 
