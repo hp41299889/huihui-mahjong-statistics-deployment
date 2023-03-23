@@ -4,6 +4,19 @@ networks:
   huihui-mahjong:
     driver: bridge
 services:
+  nginx:
+    depends_on:
+      - frontend
+      - backend
+    image: nginx:stable
+    container_name: huihui-mahjong-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - huihui-mahjong
+
   frontend:
     depends_on:
       - backend
