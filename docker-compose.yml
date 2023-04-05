@@ -5,14 +5,24 @@ networks:
     driver: bridge
 
 services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - huihui-mahjong
+
   frontend:
     depends_on:
       - backend
     image: hp4129889/huihui-mahjong:frontend
-    container_name: huihui-mahjong-frontend
+    container_name: frontend
     restart: always
     environment:
-      - REACT_APP_HUIHUI_MAHJONG_API_BASE_URL=http://backend:8000/
+      - REACT_APP_HUIHUI_MAHJONG_API_BASE_URL=http://backend
     ports:
       - "3030:3030"
     networks:
@@ -22,7 +32,7 @@ services:
     depends_on:
       - postgres
     image: hp4129889/huihui-mahjong:backend
-    container_name: huihui-mahjong-backend
+    container_name: backend
     command: sh -c "npm run migration:run && npm start"
     restart: always
     environment:
@@ -39,7 +49,7 @@ services:
       
   postgres:
     image: postgres:latest
-    container_name: huihui-mahjong-postgres
+    container_name: postgres
     restart: always
     ports:
       - "5432:5432"
@@ -54,6 +64,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
+    container_name: pgadmin
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: hp4129889@gmail.com
