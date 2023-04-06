@@ -6,6 +6,9 @@ networks:
 
 services:
   nginx:
+    depends_on:
+      - frontend
+      - backend
     image: nginx:latest
     container_name: nginx
     ports:
@@ -21,8 +24,6 @@ services:
     image: hp4129889/huihui-mahjong:frontend
     container_name: frontend
     restart: always
-    environment:
-      - REACT_APP_HUIHUI_MAHJONG_API_BASE_URL=http://backend
     ports:
       - "3030:3030"
     networks:
@@ -37,6 +38,7 @@ services:
     restart: always
     environment:
       - APP_PORT=8000
+      - APP_API_PREFIX=/mahjong/api
       - HUIHUI_POSTGRES_USER=huihui
       - HUIHUI_POSTGRES_PASSWORD=huihui
       - HUIHUI_POSTGRES_DB=huihui-mahjong
@@ -46,7 +48,7 @@ services:
       - "8000:8000"
     networks:
       - huihui-mahjong
-      
+
   postgres:
     image: postgres:latest
     container_name: postgres
