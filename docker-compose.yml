@@ -4,6 +4,10 @@ networks:
   huihui-mahjong:
     driver: bridge
 
+volumes:
+  react-app-static-files:
+
+
 services:
   nginx:
     depends_on:
@@ -14,6 +18,7 @@ services:
     ports:
       - "80:80"
     volumes:
+      - react-app-static-files:/usr/share/nginx/html
       - ./nginx.conf:/etc/nginx/nginx.conf
     networks:
       - huihui-mahjong
@@ -23,9 +28,9 @@ services:
       - backend
     image: hp4129889/huihui-mahjong:frontend
     container_name: frontend
-    restart: always
-    ports:
-      - "3030:3030"
+    restart: "no"
+    volumes:
+      - react-app-static-files:/react-app
     networks:
       - huihui-mahjong
 
@@ -34,7 +39,7 @@ services:
       - postgres
     image: hp4129889/huihui-mahjong:backend
     container_name: backend
-    command: sh -c "yarn migrate:run"
+    command: sh -c "yarn migrate:run && yarn start"
     restart: always
     environment:
       - APP_PORT=8000
