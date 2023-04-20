@@ -2,23 +2,24 @@ version: '3.9'
 
 networks:
   huihui-mahjong:
-    driver: bridge'
+    driver: bridge
 
 volumes:
-  db-data:
+  react-app-static-files:
 
 
 services:
   nginx:
-    image: nginx:latest
-    container_name: huihui-mahjong-nginx
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    ports:
-      - "80:80"
     depends_on:
       - frontend
       - backend
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - react-app-static-files:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf
     networks:
       - huihui-mahjong
 
@@ -26,10 +27,10 @@ services:
     depends_on:
       - backend
     image: hp4129889/huihui-mahjong:frontend
-    container_name: huihui-mahjong-frontend
-    restart: always
-    ports:
-      - "3000:3000"
+    container_name: frontend
+    restart: "no"
+    volumes:
+      - react-app-static-files:/react-app
     networks:
       - huihui-mahjong
 
@@ -37,24 +38,45 @@ services:
     depends_on:
       - postgres
     image: hp4129889/huihui-mahjong:backend
-    container_name: huihui-mahjong-backend
+    container_name: backend
+    command: sh -c "yarn migrate:run && yarn start"
     restart: always
+    environment:
+      - APP_PORT=8000
+      - APP_API_PREFIX=/mahjong/api
+      - HUIHUI_POSTGRES_USER=huihui
+      - HUIHUI_POSTGRES_PASSWORD=huihui
+      - HUIHUI_POSTGRES_DB=huihui-mahjong
+      - HUIHUI_POSTGRES_HOST=postgres
+      - HUIHUI_POSTGRES_PORT=5432
     ports:
-      - "8080:8080"
+      - "8000:8000"
     networks:
       - huihui-mahjong
 
   postgres:
     image: postgres:latest
-    container_name: huihui-mahjong-postgres
+    container_name: postgres
     restart: always
     ports:
-      - "${HUIHUI_POSTGRES_PORT}:${HUIHUI_POSTGRES_PORT}"
+      - "5432:5432"
     environment:
-      POSTGRES_USER: ${HUIHUI_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${HUIHUI_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${HUIHUI_POSTGRES_DB}
+      POSTGRES_USER: huihui
+      POSTGRES_PASSWORD: huihui
+      POSTGRES_DB: huihui-mahjong
     volumes:
-      - ./db-data/postgres:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - huihui-mahjong
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: hp4129889@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: huihui
+    ports:
+      - "8081:80"
     networks:
       - huihui-mahjong
