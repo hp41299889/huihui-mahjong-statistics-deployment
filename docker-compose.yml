@@ -49,8 +49,20 @@ services:
       - HUIHUI_POSTGRES_DB=huihui-mahjong
       - HUIHUI_POSTGRES_HOST=postgres
       - HUIHUI_POSTGRES_PORT=5432
+      - HUIHUI_REDIS_HOST=redis
     ports:
       - "8000:8000"
+    networks:
+      - huihui-mahjong
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/data
     networks:
       - huihui-mahjong
 
